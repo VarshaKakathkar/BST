@@ -2,35 +2,27 @@
 #define _INCLUDED_BST_
 #include<stdint.h>
 
-typedef struct  _tree_node TreeNode;
+typedef struct  _tree_node Node;
 typedef struct  _bst_ BST;
 
 struct _tree_node
 {
 	int32_t data;
-	TreeNode* left;
-	TreeNode* right;
+	Node *left;
+	Node *right;
 };
 
 struct _bst_
 {
-	TreeNode *root;
-	uint32_t mass;
+	Node *root;
+	uint32_t count;
 };
 
 BST bst_new();
 uint32_t bst_count(BST *tree);
-BST* bst_add_node(BST *tree, int32_t element);
-BST* bst_delete_node(BST *tree, int32_t key);
-uint32_t bst_lookup(BST *tree);
-BST* bst_inorder(BST *tree);
-BST* bst_postorder(BST *tree);
-BST* bst_preorder(BST *tree);
-uint32_t bst_hieght(BST *tree);
-BST* bst_level_order(BST *tree);
-
-static void _inorder_(TreeNode *node);
-static void _postorder_(TreeNode *node);
-static void _preorder_(TreeNode *node);
+BST* add_node(BST *tree,int32_t element);
+BST* delete_node(BST* tree,int32_t key);
+void bst_inorder(BST *tree);
+void _inorder_(Node *node);
 
 #endif
