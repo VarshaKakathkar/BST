@@ -1,22 +1,23 @@
-
+#include<stdint.h>
 #include<stdlib.h>
 #include<assert.h>
 #include<stddef.h>
+#include<stdbool.h>
 #include<stdio.h>
 
 #include"bst.h"
-#include"queue.h"
+//#include"queue.h"
 
 
 BST bst_new()
 {
-BST btree={NULL,0};
-return btree;
+	BST tree={NULL,0};
+	return tree;
 }
 
-static TreeNode* _bst_newnode(int32_t ele)
+static Node* create_new_node(int32_t ele)
 {
-	TreeNode *node=(TreeNode*) malloc(sizeof(TreeNode));
+	Node *node=(Node*)malloc(sizeof(Node));
 	node->data=ele;
 	node->left=NULL;
 	node->right=NULL;
@@ -26,140 +27,138 @@ static TreeNode* _bst_newnode(int32_t ele)
 uint32_t bst_count(BST *tree)
 {
 	assert(tree!=NULL);
-	return tree->mass;
+	return tree->count;
 }
-BST* bst_add_node(BST *tree, int32_t element)
+
+BST* add_node(BST *tree, int32_t ele)
 {
 	assert(tree!=NULL);
-	Treenode *cur, *parent;
-	cur=parent=tree->root;
-	while(cur!=NULL && cur->data!=element)
+
+	Node *temp=create_new_node(ele);
+
+	if(tree->root==NULL)
 	{
-		parent=cur;
-		if(element<cur->data)
-		{
-			cur=cur->left;
-		}
-		else if(element>cur->data)
-		{
-			cur=cur->right;
-		}
+		tree->root=temp;
+		tree->count++;
+		return tree;
 	}
-	if(cur==NULL)
+
+	Node *cur=tree->root;
+
+	while(true)
 	{
-		Treenode *tnode=_bst_newnode(element);
-		if(parent==NULL)
+		if(ele<cur->data)
 		{
-			tree->root=tnode;
+			if(cur->left==NULL)
+			{
+				cur->left=temp;
+				tree->count++;
+				break;
+
+			}
+			else cur=cur->left;
 		}
-		else if(element<parent->data)
+
+		else if(ele>cur->data)
 		{
-			parent->left=tnode;
+			if(cur->right==NULL)
+			{
+				cur->right=temp;
+				tree->count++;
+				break;
+			}
+			else cur=cur->right;
+
 		}
-		else if(element>parent->data)
-		{
-			parent=>right=tnode;
-		}
-		++tree->mass;
+
+		else break;
 	}
+
 	return tree;
 }
 
-BST* bst_delete_node(BST *tree, int32_t key)
+BST* delete_node(BST* tree, int32_t key)
 {
+    assert(tree!=NULL);
+    if(tree->root==NULL) return tree;
+    Node *temp=tree->root;
+    if((temp->data==key) && (temp->left==NULL) &&(temp->right==NULL))
+    {
+        tree->root=NULL;
+        free(temp);
+        tree->count--;
+        return tree;
+    }
+    Node *prev=temp;
 
+    while(temp!=NULL)
+    {
+        if(temp->data==key) break;
+        else
+        {
+            prev=temp;
+            if(key>temp->data) temp=temp->right;
+            else temp=temp->left;
+        }
+    }
 
+    if(temp==NULL) return tree;
 
+L1: if((temp->left==NULL) && (temp->right==NULL))
+    {
+        if(key>prev->data) prev->right=NULL;
 
+        else prev->left=NULL;
+    }
 
+    else if((temp->left==NULL)&&(temp->right!=NULL))
+    {
+        if(key>prev->data) prev->right=temp->right;
+        else prev->left=temp->right;
+    }
+
+    else if((temp->left!=NULL)&&(temp->right==NULL))
+    {
+        if(key>prev->data) prev->right=temp->left;
+        else prev->left=temp->left;
+    }
+
+    else
+    {
+        Node *cur=temp->right;
+        Node *just=cur;
+        while(cur->left!=NULL)
+        {
+            just=cur;
+            cur=cur->left;
+        }
+
+        temp->data=cur->data;
+        temp=cur;
+        prev=just;
+        goto L1;
+    }
+
+    free(temp);
+    tree->count--;
+    return tree;
 }
-uint32_t bst_lookup(BST *tree)
-{
-	assert(tree!=NULL);
-	Treenode *cur=tree->root;
-	while(cur!=NULL && cur->data!=key)
-	{
-		if(key<cur->data)
-		{
-			cur=cur->left;
-		}
-		else if(element>cur->data)
-		{
-			cur=cur->right;
-		}
-	}
-	return (cur!=NULL);
-}
-BST* bst_inorder(BST *tree)
+
+void bst_inorder(BST *tree)
 {
 	assert(tree!=NULL);
 	_inorder_(tree->root);
 }
-static void _inorder_(Treenode *node)
+
+void _inorder_(Node *node)
 {
 	if(node)
 	{
 		_inorder_(node->left);
 		printf("%d\t", node->data );
-		_inorder_(node->left);
+		_inorder_(node->right);
 	}
 }
-BST* bst_postorder(BST *tree)
-{
-	assert(tree!=NULL);
-	_postorder_(tree->root);
-}
-static void _postorder_(Treenode *node)
-{
-	if(node)
-	{
-		_postorder_(node->left);
-		_postorder_(node->left);
-		printf("%d\t", node->data );
-	}
-}
-BST* bst_preorder(BST *tree)
-{
-	assert(tree!=NULL);
-	_preorder_(tree->root);
-}
-static void _preorder_(Treenode *node)
-{
-	if(node)
-	{
-		printf("%d\t", node->data );
-		_preorder_(node->left);
-		_preorder_(node->left);
-	}
-}
-uint32_t bst_hieght(BST *tree)
-{
 
 
 
-}
-BST* bst_level_order(BST *tree)
-{
-	assert(tree->root!=NULL);
-	Treenode *node;
-	Queue bst_q=queue_new(tree->mass);
-	queue *q=&bst_q;
-	queue_res res;
-
-	q=queue_add(q,tree->root,&res);
-	while(!queue_empty(q))
-	{
-	queue_delete(q,&res);
-	node=(Treenode*) res.data;
-	if(node->left)
-	{
-	  queue_add(q,node->left,&res);
-	}
-	if(node->right)
-	{
-		queue_add(q,node->right,&res);
-
-	}
-	printf("%d\t", node->data);
-	}
-}
